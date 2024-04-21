@@ -10,6 +10,14 @@ import (
 )
 
 func main() {
+	itemController := getItemController()
+	r := gin.Default()
+	r.GET("/items", itemController.FindAll)
+	r.GET("/items/:id", itemController.FindByID)
+	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
+}
+
+func getItemController() controllers.I_ItemController {
 	items := []*models.Item{
 		{ID: 1, Name: "商品１", Price: 1000, Description: "説明１", SoldOut: false},
 		{ID: 2, Name: "商品２", Price: 2000, Description: "説明２", SoldOut: true},
@@ -17,10 +25,6 @@ func main() {
 	}
 	itemRepository := repositories.NewItemMemoryRepository(items)
 	itemService := services.NewItemService(itemRepository)
-	ItemController := controllers.NewItemController(itemService)
-
-	r := gin.Default()
-	r.GET("/items", ItemController.FindAll)
-	r.GET("/items/:id", ItemController.FindByID)
-	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
+	itemController := controllers.NewItemController(itemService)
+	return itemController
 }
