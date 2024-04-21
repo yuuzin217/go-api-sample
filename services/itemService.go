@@ -1,6 +1,7 @@
 package services
 
 import (
+	"yuuzin217/go-api-sample/dto"
 	"yuuzin217/go-api-sample/models"
 	"yuuzin217/go-api-sample/repositories"
 )
@@ -8,6 +9,7 @@ import (
 type I_ItemService interface {
 	FindAll() ([]*models.Item, error)
 	FindByID(itemID uint) (*models.Item, error)
+	Create(createItemInput *dto.CreateItemInput) (*models.Item, error)
 }
 
 type ItemService struct {
@@ -24,4 +26,14 @@ func (service *ItemService) FindAll() ([]*models.Item, error) {
 
 func (service *ItemService) FindByID(itemID uint) (*models.Item, error) {
 	return service.repository.FindByID(itemID)
+}
+
+func (service *ItemService) Create(createItemInput *dto.CreateItemInput) (*models.Item, error) {
+	newItem := &models.Item{
+		Name:        createItemInput.Name,
+		Price:       createItemInput.Price,
+		Description: createItemInput.Description,
+		SoldOut:     false,
+	}
+	return service.repository.Create(newItem)
 }
