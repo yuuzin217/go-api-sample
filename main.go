@@ -9,15 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	itemController := getItemController()
-	r := gin.Default()
-	r.GET("/items", itemController.FindAll)
-	r.GET("/items/:id", itemController.FindByID)
-	r.POST("/items", itemController.Create)
-	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
-}
-
 func getItemController() controllers.I_ItemController {
 	items := []*models.Item{
 		{ID: 1, Name: "商品１", Price: 1000, Description: "説明１", SoldOut: false},
@@ -28,4 +19,14 @@ func getItemController() controllers.I_ItemController {
 	itemService := services.NewItemService(itemRepository)
 	itemController := controllers.NewItemController(itemService)
 	return itemController
+}
+
+func main() {
+	itemController := getItemController()
+	r := gin.Default()
+	r.GET("/items", itemController.FindAll)
+	r.GET("/items/:id", itemController.FindByID)
+	r.POST("/items", itemController.Create)
+	r.PUT("/items/:id", itemController.Update)
+	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 	"yuuzin217/go-api-sample/dto"
 	"yuuzin217/go-api-sample/services"
 
@@ -13,6 +12,7 @@ type I_ItemController interface {
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
 }
 
 type ItemController struct {
@@ -33,9 +33,9 @@ func (controller *ItemController) FindAll(ctx *gin.Context) {
 }
 
 func (controller *ItemController) FindByID(ctx *gin.Context) {
-	itemID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	itemID, err := parseItemID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id: " + err.Error()})
 		return
 	}
 	item, err := controller.service.FindByID(uint(itemID))
@@ -64,4 +64,29 @@ func (controller *ItemController) Create(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusCreated, gin.H{"data": newItem})
+}
+
+func (controller *ItemController) Update(ctx *gin.Context) {
+	itemID, err := parseItemID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id: " + err.Error()})
+		return
+	}
+	var input dto.UpdateItemInput
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	updatedItem, err := controller.service.Update(uint(itemID), &input)
+	if err != nil {
+		switch {
+		case err.Error() == "Item not found":
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+	ctx.JSON(http.StatusOK, gin.H{"data": updatedItem})
 }
