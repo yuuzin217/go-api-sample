@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 	"yuuzin217/go-api-sample/models"
 )
@@ -10,6 +11,7 @@ type I_ItemRepository interface {
 	FindByID(itemID uint) (*models.Item, error)
 	Create(newItem *models.Item) (*models.Item, error)
 	Update(updateItem *models.Item) (*models.Item, error)
+	Delete(itemID uint) error
 }
 
 type ItemMemoryRepository struct {
@@ -47,4 +49,15 @@ func (repo *ItemMemoryRepository) Update(updateItem *models.Item) (*models.Item,
 		}
 	}
 	return nil, fmt.Errorf("unexpected error")
+}
+
+func (repo *ItemMemoryRepository) Delete(itemID uint) error {
+	for i, item := range repo.items {
+		if item.ID == itemID {
+			// 対象の index の情報を削除する
+			repo.items = append(repo.items[:i], repo.items[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New("item not Found")
 }
