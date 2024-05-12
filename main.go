@@ -2,6 +2,7 @@ package main
 
 import (
 	"yuuzin217/go-api-sample/controllers"
+	"yuuzin217/go-api-sample/infla"
 	"yuuzin217/go-api-sample/models"
 	"yuuzin217/go-api-sample/repositories"
 	"yuuzin217/go-api-sample/services"
@@ -21,7 +22,12 @@ func getItemController() controllers.I_ItemController {
 	return itemController
 }
 
+func loadEnv() {
+	infla.Initialize()
+}
+
 func main() {
+	loadEnv()
 	itemController := getItemController()
 	r := gin.Default()
 	r.GET("/items", itemController.FindAll)
